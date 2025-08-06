@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="UTF-8">
+  <title>Room - Firepit Fashion</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    @font-face {
+      font-family: 'NeuePixelSans';
+      src: url('NeuePixelSans.ttf') format('truetype');
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      background: #074244;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    
+    .background {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      z-index: 1;
+    }
+    
+    .character {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      z-index: 2;
+    }
+    
+    .wardrobe-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      z-index: 3;
+      border: 5px solid red;
+      background: rgba(255, 0, 0, 0.3);
+      background-image: url('chelley-room.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+    }
+    
+    .wardrobe-item {
+      position: absolute;
+      width: 200px;
+      height: auto;
+      z-index: 3;
+      transform-origin: top left;
+      object-fit: contain;
+    }
+    
+    .wardrobe-button {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background: red;
+      border: 2px solid white;
+      cursor: pointer;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      transition: transform 0.2s ease;
+      opacity: 1;
+    }
+    
+    .wardrobe-button:hover + .wardrobe-item {
+      transform: translate(-50%, -50%) translateY(-10px);
+    }
+    
+    .logo {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 200px;
+      z-index: 10;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    
+    .logo:hover {
+      transform: scale(1.05);
+    }
+    
+    .save-button {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      border-radius: 25px;
+      padding: 12px 24px;
+      font-family: 'NeuePixelSans', sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 10;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .save-button:hover {
+      transform: scale(1.05);
+      background: #ff5252;
+    }
+    
+    .save-button:active {
+      transform: scale(0.95);
+    }
+    
+    .wardrobe-item-hover {
+      transition: transform 0.2s ease;
+    }
+    
+    .wardrobe-item-hover:hover {
+      transform: translateY(-10px);
+    }
+    
+    .wardrobe-scene {
+      position: relative;
+      width: 100vw;
+      max-width: 1200px;
+      aspect-ratio: 16/9;
+    }
+    
+    .wardrobe-item {
+      position: absolute;
+      width: 6.4%;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      z-index: 5;
+    }
+    
+    .wardrobe-item:hover {
+      transform: translateY(-10px);
+    }
+    
+
+      </style>
+  </head>
+  <body>
+    <script>
+      function addOutfit(outfitType) {
+        console.log('Adding outfit:', outfitType); // Debug log
+        
+        // Check if this outfit is already on
+        const existingOutfit = document.querySelector(`.outfit-overlay[data-outfit="${outfitType}"]`);
+        
+        if (existingOutfit) {
+          // If it exists, remove it (toggle off)
+          console.log('Removing outfit:', outfitType);
+          existingOutfit.remove();
+        } else {
+          // If it doesn't exist, add it (toggle on)
+          console.log('Adding outfit:', outfitType);
+          const outfitOverlay = document.createElement('img');
+
+          outfitOverlay.src = `girls-cartoon-clothes/${outfitType}.png`;
+          outfitOverlay.className = 'outfit-overlay';
+          outfitOverlay.setAttribute('data-outfit', outfitType);
+          outfitOverlay.style.position = 'absolute';
+          outfitOverlay.style.top = '50%';
+          outfitOverlay.style.left = '50%';
+          outfitOverlay.style.transform = 'translate(-50%, -50%)';
+          outfitOverlay.style.maxWidth = '100%';
+          outfitOverlay.style.maxHeight = '100%';
+          outfitOverlay.style.width = 'auto';
+          outfitOverlay.style.height = 'auto';
+          outfitOverlay.style.objectFit = 'contain';
+          outfitOverlay.style.zIndex = '3';
+          
+          // Add error handling for image loading
+          outfitOverlay.onerror = function() {
+            console.error('Failed to load outfit image:', outfitType);
+          };
+          outfitOverlay.onload = function() {
+            console.log('Outfit image loaded successfully:', outfitType);
+          };
+          
+          document.body.appendChild(outfitOverlay);
+        }
+      }
+      
+      // Function to get URL parameters
+      function getUrlParameter(name) {
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+        var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+        var results = regex.exec(location.search);
+        return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+      }
+      
+      // Load character based on URL parameter
+      window.addEventListener('load', function() {
+        const character = getUrlParameter('character');
+        const characterImg = document.getElementById('character');
+        
+        if (character) {
+          switch(character.toLowerCase()) {
+            case 'chelley':
+              characterImg.src = 'chelley2.png';
+              characterImg.alt = 'Chelley';
+              break;
+            case 'olandria':
+              characterImg.src = 'olandria.png';
+              characterImg.alt = 'Olandria';
+              break;
+            case 'amaya':
+              characterImg.src = 'amaya.png';
+              characterImg.alt = 'Amaya';
+              break;
+            default:
+              // Default to Chelley if no valid character is specified
+              characterImg.src = 'chelley2.png';
+              characterImg.alt = 'Chelley';
+          }
+        }
+      });
+      
+          function saveCharacterSnapshot() {
+      const container = document.body;
+      html2canvas(container, {
+        useCORS: true,
+        backgroundColor: '#074244',
+        width: container.scrollWidth,
+        height: container.scrollHeight
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = 'firepit-fashion-outfit.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }).catch(error => {
+        console.error('Error saving outfit:', error);
+        alert('Error saving outfit. Please try again.');
+      });
+    }
+
+    </script>
+  <div class="wardrobe-scene">
+                <img src="room-1.png" alt="Room Background" class="background">
+    
+    <!-- Row 1 (Top shelf dresses & tops) -->
+    <img src="girls-wardrobe/gradient-dress-asset.png" alt="Gradient Dress" class="wardrobe-item" style="left: 43%; top: 14%; width: 9.4%" onclick="addOutfit('gradient-dress')">
+    <img src="girls-wardrobe/blue-dress-asset.png" alt="Blue Dress" class="wardrobe-item" style="left: 51.2%; top: 14%;" onclick="addOutfit('blue-dress')">
+    <img src="girls-wardrobe/yellow-dress-asset.png" alt="Yellow Dress" class="wardrobe-item" style="left: 57.4%; top: 14%;" onclick="addOutfit('yellow-dress')">
+    <img src="girls-wardrobe/cami-asset.png" alt="Cami" class="wardrobe-item" style="left: 66%; top: 7%;" onclick="addOutfit('cami')">
+    <img src="girls-wardrobe/denim-top-asset.png" alt="Denim Top" class="wardrobe-item" style="left: 73%; top: 7%;" onclick="addOutfit('denim-top')">
+    <img src="girls-wardrobe/halter-asset.png" alt="Halter" class="wardrobe-item" style="left: 80%; top: 7%;" onclick="addOutfit('halter')">
+    <img src="girls-wardrobe/bolero-asset.png" alt="Bolero" class="wardrobe-item" style="left: 87%; top: 7%;" onclick="addOutfit('bolero')">
+    
+    <!-- Row 2 (Middle shelf bikini tops & misc) -->
+    <img src="girls-wardrobe/lime-bikini-asset.png" alt="Lime Bikini" class="wardrobe-item" style="left: 40%; top: 38%;" onclick="addOutfit('lime-bikini')">
+    <img src="girls-wardrobe/crochet-bikini-asset.png" alt="Crochet Bikini" class="wardrobe-item" style="left: 46%; top: 38%;" onclick="addOutfit('crochet-bikini')">
+    <img src="girls-wardrobe/pink-bikini-asset.png" alt="Pink Bikini" class="wardrobe-item" style="left: 53%; top: 38%;" onclick="addOutfit('pink-bikini')">
+    <img src="girls-wardrobe/brazil-bikini-asset.png" alt="Brazil Bikini" class="wardrobe-item" style="left: 60%; top: 38%;" onclick="addOutfit('brazil-bikini')">
+    <img src="girls-wardrobe/one-piece-asset.png" alt="One Piece" class="wardrobe-item" style="left: 87%; top: 38%;" onclick="addOutfit('one-piece')">
+    
+    <!-- Row 3 (Accessories below bikinis) -->
+    <img src="girls-wardrobe/sailor-hat-asset.png" alt="Sailor Hat" class="wardrobe-item" style="left: 40%; top: 53%;" onclick="addOutfit('sailor-hat')">
+    <img src="girls-wardrobe/frangipani-asset.png" alt="Frangipani" class="wardrobe-item" style="left: 46%; top: 53%;" onclick="addOutfit('frangipani')">
+    <img src="girls-wardrobe/red-flower-asset.png" alt="Red Flower" class="wardrobe-item" style="left: 53%; top: 53%;" onclick="addOutfit('red-flower')">
+    <img src="girls-wardrobe/bunny-ears-asset.png" alt="Bunny Ears" class="wardrobe-item" style="left: 60%; top: 53%;" onclick="addOutfit('bunny-ears')">
+    
+    <!-- Row 4 (Bottom shelf skirts & pants) -->
+    <img src="girls-wardrobe/crochet-skirt-asset.png" alt="Crochet Skirt" class="wardrobe-item" style="left: 40%; top: 69%;" onclick="addOutfit('crochet-skirt')">
+    <img src="girls-wardrobe/black-skirt-asset.png" alt="Black Skirt" class="wardrobe-item" style="left: 46%; top: 69%;" onclick="addOutfit('black-skirt')">
+    <img src="girls-wardrobe/denim-skirt-asset.png" alt="Denim Skirt" class="wardrobe-item" style="left: 53%; top: 69%;" onclick="addOutfit('denim-skirt')">
+    <img src="girls-wardrobe/crochet-shorts-asset.png" alt="Crochet Shorts" class="wardrobe-item" style="left: 60%; top: 69%;" onclick="addOutfit('crochet-shorts')">
+    <img src="girls-wardrobe/robe-asset.png" alt="Robe" class="wardrobe-item" style="left: 73%; top: 69%; width: 9.8%;" onclick="addOutfit('robe')">
+    <img src="girls-wardrobe/jeans-asset.png" alt="Jeans" class="wardrobe-item" style="left: 87%; top: 69%;" onclick="addOutfit('jeans')">
+    
+    <!-- Row 5 (Shoes at bottom) -->
+    <img src="girls-wardrobe/green-heels-asset.png" alt="Green Heels" class="wardrobe-item" style="left: 40%; top: 85%; width: 3.5%;" onclick="addOutfit('green-heels')">
+    <img src="girls-wardrobe/gold-heels-asset.png" alt="Gold Heels" class="wardrobe-item" style="left: 46%; top: 85%; width: 3.5%;" onclick="addOutfit('gold-heels')">
+    <img src="girls-wardrobe/black-boots-asset.png" alt="Black Boots" class="wardrobe-item" style="left: 53%; top: 85%; width: 3.5%;" onclick="addOutfit('black-boots')">
+  </div>
+  <img src="chelley2.png" alt="Character" class="character" id="character">
+  <img src="logo.png" alt="Logo" class="logo" onclick="window.location.href='index.html'">
+  <button class="save-button" onclick="saveCharacterSnapshot()">SAVE 📸</button>
+</body>
+</html> 
