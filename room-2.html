@@ -108,16 +108,13 @@
          function addOutfit(outfitType) {
        console.log('Adding outfit:', outfitType);
        const existingOutfit = document.querySelector(`.outfit-overlay[data-outfit="${outfitType}"]`);
-       const existingSaveOutfit = document.querySelector(`#save-outfits img[data-outfit="${outfitType}"]`);
        
        if (existingOutfit) {
          console.log('Removing outfit:', outfitType);
          existingOutfit.remove();
-         if (existingSaveOutfit) existingSaveOutfit.remove();
        } else {
          console.log('Adding outfit:', outfitType);
          
-         // Add to visible game area
          const outfitOverlay = document.createElement('img');
          outfitOverlay.src = `boys-cartoon-clothes/${outfitType}.png`;
          outfitOverlay.className = 'outfit-overlay';
@@ -134,20 +131,6 @@
          outfitOverlay.style.zIndex = '3';
          document.body.appendChild(outfitOverlay);
 
-         // Add to save area
-         const saveOutfit = document.createElement('img');
-         saveOutfit.src = `boys-cartoon-clothes/${outfitType}.png`;
-         saveOutfit.setAttribute('data-outfit', outfitType);
-         saveOutfit.style.position = 'absolute';
-         saveOutfit.style.top = '50%';
-         saveOutfit.style.left = '50%';
-         saveOutfit.style.transform = 'translate(-50%, -50%)';
-         saveOutfit.style.width = '600px';
-         saveOutfit.style.height = 'auto';
-         saveOutfit.style.maxHeight = '100%';
-         saveOutfit.style.objectFit = 'contain';
-         document.getElementById('save-outfits').appendChild(saveOutfit);
-
          outfitOverlay.onerror = function() { console.error('Failed to load outfit image:', outfitType); };
          outfitOverlay.onload = function() { console.log('Outfit image loaded successfully:', outfitType); };
        }
@@ -161,7 +144,6 @@
          window.addEventListener('load', function() {
        const character = getUrlParameter('character');
        const characterImg = document.getElementById('character');
-       const saveCharacterImg = document.getElementById('save-character');
        
        let characterSrc = 'ace.png'; // Default
        
@@ -182,36 +164,110 @@
        }
        
        characterImg.src = characterSrc;
-       saveCharacterImg.src = characterSrc;
      });
 
          function saveCharacterSnapshot() {
-       const saveArea = document.getElementById("save-area");
+       const canvas = document.getElementById('saveCanvas');
+       const ctx = canvas.getContext('2d');
        
-       html2canvas(saveArea, {
-         backgroundColor: null,
-         useCORS: true,
-         scale: 1 // keeps 1:1 scale (no weird zooming)
-       }).then(canvas => {
+       // Clear canvas
+       ctx.clearRect(0, 0, canvas.width, canvas.height);
+       
+       // Load and draw all images in sequence
+       const images = [];
+       let imagesLoaded = 0;
+       const totalImages = 3; // background, logo, character + outfits
+       
+       // Background image
+       const bgImg = new Image();
+       bgImg.crossOrigin = 'anonymous';
+       bgImg.onload = function() {
+         images.push({ img: bgImg, type: 'background' });
+         imagesLoaded++;
+         if (imagesLoaded === totalImages) drawCanvas();
+       };
+       bgImg.src = 'room-2.png';
+       
+       // Logo image
+       const logoImg = new Image();
+       logoImg.crossOrigin = 'anonymous';
+       logoImg.onload = function() {
+         images.push({ img: logoImg, type: 'logo' });
+         imagesLoaded++;
+         if (imagesLoaded === totalImages) drawCanvas();
+       };
+       logoImg.src = 'logo.png';
+       
+       // Character image
+       const characterImg = new Image();
+       characterImg.crossOrigin = 'anonymous';
+       characterImg.onload = function() {
+         images.push({ img: characterImg, type: 'character' });
+         imagesLoaded++;
+         if (imagesLoaded === totalImages) drawCanvas();
+       };
+       characterImg.src = document.getElementById('character').src;
+       
+       function drawCanvas() {
+         // Draw background (cover the entire canvas)
+         const bgImage = images.find(img => img.type === 'background').img;
+         ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
+         
+         // Draw logo at top center
+         const logoImage = images.find(img => img.type === 'logo').img;
+         const logoWidth = 400;
+         const logoHeight = (logoImage.height / logoImage.width) * logoWidth;
+         const logoX = (canvas.width - logoWidth) / 2;
+         const logoY = 100;
+         ctx.drawImage(logoImage, logoX, logoY, logoWidth, logoHeight);
+         
+         // Draw character centered
+         const charImage = images.find(img => img.type === 'character').img;
+         const charWidth = 600;
+         const charHeight = (charImage.height / charImage.width) * charWidth;
+         const charX = (canvas.width - charWidth) / 2;
+         const charY = (canvas.height - charHeight) / 2;
+         ctx.drawImage(charImage, charX, charY, charWidth, charHeight);
+         
+         // Draw outfits on top of character
+         const outfits = document.querySelectorAll('.outfit-overlay');
+         let outfitsToLoad = outfits.length;
+         
+         if (outfitsToLoad === 0) {
+           // No outfits, save immediately
+           saveCanvasImage();
+         } else {
+           outfits.forEach(outfit => {
+             const outfitImg = new Image();
+             outfitImg.crossOrigin = 'anonymous';
+             outfitImg.onload = function() {
+               // Draw outfit at same position as character
+               const outfitWidth = 600;
+               const outfitHeight = (outfitImg.height / outfitImg.width) * outfitWidth;
+               const outfitX = (canvas.width - outfitWidth) / 2;
+               const outfitY = (canvas.height - outfitHeight) / 2;
+               ctx.drawImage(outfitImg, outfitX, outfitY, outfitWidth, outfitHeight);
+               
+               outfitsToLoad--;
+               if (outfitsToLoad === 0) {
+                 saveCanvasImage();
+               }
+             };
+             outfitImg.src = outfit.src;
+           });
+         }
+       }
+       
+       function saveCanvasImage() {
          const link = document.createElement('a');
          link.download = 'firepit-fashion-story.png';
          link.href = canvas.toDataURL('image/png');
          link.click();
-       }).catch(error => {
-         console.error('Error saving outfit:', error);
-         alert('Error saving outfit. Please try again.');
-       });
+       }
      }
   </script>
-     <!-- Hidden save area for Instagram story format -->
-   <div id="save-area" style="position: fixed; top: -9999px; left: -9999px; width: 1080px; height: 1920px; overflow: hidden;">
-     <img src="room-2.png" alt="Room Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
-     <img src="logo.png" alt="Logo" style="position: absolute; top: 100px; left: 50%; transform: translateX(-50%); width: 400px;">
-     <div id="save-character-container" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 800px; height: 1200px;">
-       <img id="save-character" src="ace.png" alt="Character" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: auto; max-height: 100%; object-fit: contain;">
-       <div id="save-outfits" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 100%;"></div>
-     </div>
-   </div>
+     <!-- Hidden canvas for saving -->
+   <canvas id="saveCanvas" width="1080" height="1920" style="position: fixed; top: -9999px; left: -9999px; display: none;"></canvas>
 
    <div class="wardrobe-scene">
      <img src="room-2.png" alt="Room Background" class="background">
