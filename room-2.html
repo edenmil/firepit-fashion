@@ -235,9 +235,9 @@
          const charWidth = baseWidth * 5; // 500% bigger
          const charHeight = (character.height / character.width) * charWidth;
          
-         // Center horizontally, then offset 20% to the right
+         // Center horizontally, then offset 350 pixels to the right
          const centerX = (canvas.width - charWidth) / 2;
-         const charX = centerX + (canvas.width * 0.2); // 20% offset to the right
+         const charX = centerX + 350; // 350 pixels offset to the right
          const charY = (canvas.height - charHeight) / 2;
          
          ctx.drawImage(character, charX, charY, charWidth, charHeight);
