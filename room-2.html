@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Room - Firepit Fashion</title>
 
   <style>
@@ -167,7 +170,8 @@
      });
 
          async function saveCharacterSnapshot() {
-       console.log('Save function called!');
+       console.log('UPDATED SAVE FUNCTION - CACHE BUSTED!');
+       alert('NEW VERSION LOADED - Testing cropped background!');
        
        try {
          // 1. Create fixed-size canvas (1080x1920 for story format)
@@ -226,16 +230,18 @@
          console.log('Character source:', currentCharacterBase);
          const character = await loadImage(currentCharacterBase);
          
-         // Make character fill ~60% width of canvas
-         const charWidth = canvas.width * 0.6;
+         // Make character fill ~80% width of canvas (much bigger!)
+         const charWidth = canvas.width * 0.8;
          const charHeight = (character.height / character.width) * charWidth;
          
-         // Center horizontally + position vertically
+         // Center horizontally + position vertically in the middle
          const charX = (canvas.width - charWidth) / 2;
          const charY = (canvas.height - charHeight) / 2;
          
          ctx.drawImage(character, charX, charY, charWidth, charHeight);
          console.log('Character drawn at:', charX, charY, 'size:', charWidth, 'x', charHeight);
+         console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
+         console.log('Character should be centered at:', (canvas.width - charWidth) / 2, (canvas.height - charHeight) / 2);
 
          console.log('Loading outfits...');
          // 6. Draw outfits at same position/size as character
