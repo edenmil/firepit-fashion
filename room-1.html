@@ -234,9 +234,9 @@
               characterImg.src = 'olandria.png';
               characterImg.alt = 'Olandria';
               break;
-            case 'amaya':
-              characterImg.src = 'amaya.png';
-              characterImg.alt = 'Amaya';
+                      case 'iris':
+            characterImg.src = 'iris.png';
+            characterImg.alt = 'Iris';
               break;
             default:
               // Default to Chelley if no valid character is specified
@@ -246,23 +246,142 @@
         }
       });
       
-          function saveCharacterSnapshot() {
-      const container = document.body;
-      html2canvas(container, {
-        useCORS: true,
-        backgroundColor: '#074244',
-        width: container.scrollWidth,
-        height: container.scrollHeight
-      }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = 'firepit-fashion-outfit.png';
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      }).catch(error => {
-        console.error('Error saving outfit:', error);
-        alert('Error saving outfit. Please try again.');
-      });
-    }
+      async function saveCharacterSnapshot() {
+        console.log('Save function called!');
+        
+        try {
+          // 1. Create fixed-size canvas (1080x1920 for story format)
+          const canvas = document.createElement('canvas');
+          canvas.width = 1080;
+          canvas.height = 1920;
+          const ctx = canvas.getContext('2d');
+          
+          console.log('Canvas created:', canvas.width, 'x', canvas.height);
+
+          // 2. Helper to load an image
+          function loadImage(src) {
+            return new Promise((resolve, reject) => {
+              const img = new Image();
+              img.crossOrigin = "anonymous";
+              img.onload = () => {
+                console.log('Image loaded successfully:', src);
+                resolve(img);
+              };
+              img.onerror = () => {
+                console.error('Failed to load image:', src);
+                reject(new Error(`Failed to load image: ${src}`));
+              };
+              img.src = src;
+            });
+          }
+
+          console.log('Loading background...');
+          // 3. Load and draw IG story background
+          const bg = await loadImage('ig-story.png');
+          ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+          console.log('Background drawn');
+
+          console.log('Loading logo...');
+          // 4. Draw logo at top center
+          const logo = await loadImage('logo.png');
+          const logoWidth = 400;
+          const logoHeight = (logo.height / logo.width) * logoWidth;
+          const logoX = (canvas.width - logoWidth) / 2;
+          ctx.drawImage(logo, logoX, 50, logoWidth, logoHeight);
+          console.log('Logo drawn at:', logoX, 50);
+
+          console.log('Loading character...');
+          // 5. Draw character (scaled bigger + offset to the right)
+          const currentCharacterBase = document.getElementById('character').src;
+          console.log('Character source:', currentCharacterBase);
+          const character = await loadImage(currentCharacterBase);
+          
+          // Make character 500% bigger and offset to the right
+          const baseWidth = 600; // Base character width
+          const charWidth = baseWidth * 5; // 500% bigger
+          const charHeight = (character.height / character.width) * charWidth;
+          
+          // Center horizontally, then offset to the right
+          const centerX = (canvas.width - charWidth) / 2;
+          const charX = centerX + 730; // Offset to the right
+          const charY = (canvas.height - charHeight) / 2;
+          
+          ctx.drawImage(character, charX, charY, charWidth, charHeight);
+          console.log('Character drawn at:', charX, charY, 'size:', charWidth, 'x', charHeight);
+          console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
+          console.log('Character should be centered at:', (canvas.width - charWidth) / 2, (canvas.height - charHeight) / 2);
+
+          console.log('Loading outfits...');
+          // 6. Draw outfits at same position/size as character
+          const equippedItems = document.querySelectorAll('.outfit-overlay');
+          console.log('Found', equippedItems.length, 'outfits');
+          for (const item of equippedItems) {
+            console.log('Loading outfit:', item.src);
+            const clothing = await loadImage(item.src);
+            ctx.drawImage(clothing, charX, charY, charWidth, charHeight);
+            console.log('Outfit drawn');
+          }
+
+          // 7. Add text elements
+          console.log('Adding text elements...');
+          
+          // Get character name from URL
+          const urlParams = new URLSearchParams(window.location.search);
+          const characterName = urlParams.get('character') || 'Chelley';
+          const capitalizedName = characterName.charAt(0).toUpperCase() + characterName.slice(1);
+          
+          // Main text with glow
+          ctx.font = '32px NeuePixelSans, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          
+          const mainText = `Here's my fit for ${capitalizedName} from Love Island! #flashgames #i-miss-the-computerlab`;
+          const textX = canvas.width / 2;
+          const textY = canvas.height - 200; // 200px from bottom
+          
+          // Create glow effect
+          ctx.shadowColor = '#ff009c';
+          ctx.shadowBlur = 20;
+          ctx.fillStyle = 'white';
+          ctx.fillText(mainText, textX, textY);
+          
+          // Reset shadow for URL text
+          ctx.shadowColor = 'transparent';
+          ctx.shadowBlur = 0;
+          
+          // URL text at very bottom
+          ctx.font = '24px NeuePixelSans, sans-serif';
+          ctx.fillStyle = 'white';
+          const urlText = 'https://edenmil.github.io/firepit-fashion/';
+          const urlY = canvas.height - 50; // 50px from bottom
+          ctx.fillText(urlText, textX, urlY);
+
+          console.log('Creating download link...');
+          // 8. Download the final image
+          const link = document.createElement('a');
+          link.download = 'firepit-fashion-story.png';
+          link.href = canvas.toDataURL('image/png');
+          console.log('Downloading image...');
+          
+          // Debug: Let's see what the canvas contains
+          console.log('Canvas data URL length:', link.href.length);
+          console.log('Canvas data URL preview:', link.href.substring(0, 100) + '...');
+          
+          // Try to trigger download
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          console.log('Download complete!');
+          
+          // Also show a preview in the console
+          console.log('Canvas preview - check if this shows the correct image:');
+          console.log('Canvas width:', canvas.width, 'height:', canvas.height);
+          
+        } catch (error) {
+          console.error('Error saving image:', error);
+          alert('Error saving image: ' + error.message);
+        }
+      }
 
     </script>
   <div class="wardrobe-scene">
@@ -306,5 +425,10 @@
   <img src="chelley2.png" alt="Character" class="character" id="character">
   <img src="logo.png" alt="Logo" class="logo" onclick="window.location.href='index.html'">
   <button class="save-button" onclick="saveCharacterSnapshot()">SAVE 📸</button>
+  
+  <!-- Footer -->
+  <div style="position: fixed; bottom: 13px; left: 50%; transform: translateX(-50%); color: white; font-family: 'NeuePixelSans', sans-serif; font-size: 14px; text-align: center; z-index: 100; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+    hi it's Eden here ⋆ ˚｡⋆୨୧˚  <a href="https://www.instagram.com/edenmili/" target="_blank" style="color: #ffcedc; text-decoration: underline;">follow me on IG</a> to see the next project !! also say hi:)
+  </div>
 </body>
 </html> 

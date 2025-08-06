@@ -170,8 +170,7 @@
      });
 
          async function saveCharacterSnapshot() {
-       console.log('UPDATED SAVE FUNCTION - CACHE BUSTED!');
-       alert('NEW VERSION LOADED - Testing cropped background!');
+       console.log('Save function called!');
        
        try {
          // 1. Create fixed-size canvas (1080x1920 for story format)
@@ -200,20 +199,10 @@
          }
 
          console.log('Loading background...');
-         // 3. Load and draw CROPPED background (left side only)
-         const bg = await loadImage('room-2.png');
-         
-         // Crop to left 50% of original background
-         const cropWidth = bg.width * 0.5;
-         const cropHeight = bg.height;
-         
-         // Draw that cropped part stretched to full canvas
-         ctx.drawImage(
-           bg,
-           0, 0, cropWidth, cropHeight, // source crop
-           0, 0, canvas.width, canvas.height // fill canvas
-         );
-         console.log('Background drawn (cropped left side)');
+         // 3. Load and draw IG story background
+         const bg = await loadImage('ig-story.png');
+         ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+         console.log('Background drawn');
 
          console.log('Loading logo...');
          // 4. Draw logo at top center
@@ -237,7 +226,7 @@
          
          // Center horizontally, then offset 350 pixels to the right
          const centerX = (canvas.width - charWidth) / 2;
-         const charX = centerX + 700; // 350 pixels offset to the right
+         const charX = centerX + 730; // 350 pixels offset to the right
          const charY = (canvas.height - charHeight) / 2;
          
          ctx.drawImage(character, charX, charY, charWidth, charHeight);
@@ -256,8 +245,42 @@
            console.log('Outfit drawn');
          }
 
+         // 7. Add text elements
+         console.log('Adding text elements...');
+         
+         // Get character name from URL
+         const urlParams = new URLSearchParams(window.location.search);
+         const characterName = urlParams.get('character') || 'Nick';
+         const capitalizedName = characterName.charAt(0).toUpperCase() + characterName.slice(1);
+         
+         // Main text with glow
+         ctx.font = '32px NeuePixelSans, sans-serif';
+         ctx.textAlign = 'center';
+         ctx.textBaseline = 'middle';
+         
+         const mainText = `Here's my fit for ${capitalizedName} from Love Island! #flashgames #i-miss-the-computerlab`;
+         const textX = canvas.width / 2;
+         const textY = canvas.height - 200; // 200px from bottom
+         
+         // Create glow effect
+         ctx.shadowColor = '#ff009c';
+         ctx.shadowBlur = 20;
+         ctx.fillStyle = 'white';
+         ctx.fillText(mainText, textX, textY);
+         
+         // Reset shadow for URL text
+         ctx.shadowColor = 'transparent';
+         ctx.shadowBlur = 0;
+         
+         // URL text at very bottom
+         ctx.font = '24px NeuePixelSans, sans-serif';
+         ctx.fillStyle = 'white';
+         const urlText = 'https://edenmil.github.io/firepit-fashion/';
+         const urlY = canvas.height - 50; // 50px from bottom
+         ctx.fillText(urlText, textX, urlY);
+         
          console.log('Creating download link...');
-         // 7. Download the final image
+         // 8. Download the final image
          const link = document.createElement('a');
          link.download = 'firepit-fashion-story.png';
          link.href = canvas.toDataURL('image/png');
@@ -312,5 +335,10 @@
   <img src="ace.png" alt="Character" class="character" id="character">
   <img src="logo.png" alt="Logo" class="logo" onclick="window.location.href='index.html'">
   <button class="save-button" onclick="saveCharacterSnapshot()">SAVE 📸</button>
+  
+  <!-- Footer -->
+  <div style="position: fixed; bottom: 13px; left: 50%; transform: translateX(-50%); color: white; font-family: 'NeuePixelSans', sans-serif; font-size: 14px; text-align: center; z-index: 100; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
+    hi it's Eden here ⋆ ˚｡⋆୨୧˚  <a href="https://www.instagram.com/edenmili/" target="_blank" style="color: #ffcedc; text-decoration: underline;">follow me on IG</a> to see the next project !! also say hi:)
+  </div>
 </body>
 </html> 
