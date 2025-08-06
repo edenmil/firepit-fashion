@@ -253,7 +253,7 @@
           
           const mainText = `Here's my fit for ${capitalizedName} from Love Island! #flashgames #i-miss-the-computerlab`;
           const textX = canvas.width / 2;
-          const textY = canvas.height - 230; // 50px higher (was 180px from bottom)
+          const textY = canvas.height - 220; // 10px lower (was 230px from bottom)
           const maxWidth = canvas.width - 100; // 50px padding on each side
           
           // Create glow effect
@@ -290,10 +290,10 @@
          ctx.shadowBlur = 0;
          
                    // URL text at very bottom
-          ctx.font = '28px NeuePixelSans, sans-serif';
+          ctx.font = '31px NeuePixelSans, sans-serif';
           ctx.fillStyle = 'white';
           const urlText = 'https://edenmil.github.io/firepit-fashion/';
-          const urlY = canvas.height - 75; // 25px higher (was 50px from bottom)
+          const urlY = canvas.height - 125; // 50px higher (was 75px from bottom)
          ctx.fillText(urlText, textX, urlY);
          
          console.log('Creating download link...');
