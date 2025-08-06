@@ -105,189 +105,116 @@
 </head>
 <body>
   <script>
-    function addOutfit(outfitType) {
-      console.log('Adding outfit:', outfitType);
-      const existingOutfit = document.querySelector(`.outfit-overlay[data-outfit="${outfitType}"]`);
-      if (existingOutfit) {
-        console.log('Removing outfit:', outfitType);
-        existingOutfit.remove();
-      } else {
-        console.log('Adding outfit:', outfitType);
-        const outfitOverlay = document.createElement('img');
-        outfitOverlay.src = `boys-cartoon-clothes/${outfitType}.png`;
-        outfitOverlay.className = 'outfit-overlay';
-        outfitOverlay.setAttribute('data-outfit', outfitType);
-        outfitOverlay.style.position = 'absolute';
-        outfitOverlay.style.top = '50%';
-        outfitOverlay.style.left = '50%';
-        outfitOverlay.style.transform = 'translate(-50%, -50%)';
-        outfitOverlay.style.maxWidth = '100%';
-        outfitOverlay.style.maxHeight = '100%';
-        outfitOverlay.style.width = 'auto';
-        outfitOverlay.style.height = 'auto';
-        outfitOverlay.style.objectFit = 'contain';
-        outfitOverlay.style.zIndex = '3';
+         function addOutfit(outfitType) {
+       console.log('Adding outfit:', outfitType);
+       const existingOutfit = document.querySelector(`.outfit-overlay[data-outfit="${outfitType}"]`);
+       const existingSaveOutfit = document.querySelector(`#save-outfits img[data-outfit="${outfitType}"]`);
+       
+       if (existingOutfit) {
+         console.log('Removing outfit:', outfitType);
+         existingOutfit.remove();
+         if (existingSaveOutfit) existingSaveOutfit.remove();
+       } else {
+         console.log('Adding outfit:', outfitType);
+         
+         // Add to visible game area
+         const outfitOverlay = document.createElement('img');
+         outfitOverlay.src = `boys-cartoon-clothes/${outfitType}.png`;
+         outfitOverlay.className = 'outfit-overlay';
+         outfitOverlay.setAttribute('data-outfit', outfitType);
+         outfitOverlay.style.position = 'absolute';
+         outfitOverlay.style.top = '50%';
+         outfitOverlay.style.left = '50%';
+         outfitOverlay.style.transform = 'translate(-50%, -50%)';
+         outfitOverlay.style.maxWidth = '100%';
+         outfitOverlay.style.maxHeight = '100%';
+         outfitOverlay.style.width = 'auto';
+         outfitOverlay.style.height = 'auto';
+         outfitOverlay.style.objectFit = 'contain';
+         outfitOverlay.style.zIndex = '3';
+         document.body.appendChild(outfitOverlay);
 
-        outfitOverlay.onerror = function() { console.error('Failed to load outfit image:', outfitType); };
-        outfitOverlay.onload = function() { console.log('Outfit image loaded successfully:', outfitType); };
-        document.body.appendChild(outfitOverlay);
-      }
-    }
+         // Add to save area
+         const saveOutfit = document.createElement('img');
+         saveOutfit.src = `boys-cartoon-clothes/${outfitType}.png`;
+         saveOutfit.setAttribute('data-outfit', outfitType);
+         saveOutfit.style.position = 'absolute';
+         saveOutfit.style.top = '50%';
+         saveOutfit.style.left = '50%';
+         saveOutfit.style.transform = 'translate(-50%, -50%)';
+         saveOutfit.style.width = '600px';
+         saveOutfit.style.height = 'auto';
+         saveOutfit.style.maxHeight = '100%';
+         saveOutfit.style.objectFit = 'contain';
+         document.getElementById('save-outfits').appendChild(saveOutfit);
+
+         outfitOverlay.onerror = function() { console.error('Failed to load outfit image:', outfitType); };
+         outfitOverlay.onload = function() { console.log('Outfit image loaded successfully:', outfitType); };
+       }
+     }
 
     function getUrlParameter(name) {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get(name);
     }
 
-    window.addEventListener('load', function() {
-      const character = getUrlParameter('character');
-      const characterImg = document.getElementById('character');
-      
-      if (character) {
-        switch(character) {
-          case 'ace':
-            characterImg.src = 'ace.png';
-            break;
-          case 'nick':
-            characterImg.src = 'nick.png';
-            break;
-          case 'pepe':
-            characterImg.src = 'pepe.png';
-            break;
-          default:
-            characterImg.src = 'ace.png'; // Default character
-        }
-      } else {
-        characterImg.src = 'ace.png'; // Default character
-      }
-    });
+         window.addEventListener('load', function() {
+       const character = getUrlParameter('character');
+       const characterImg = document.getElementById('character');
+       const saveCharacterImg = document.getElementById('save-character');
+       
+       let characterSrc = 'ace.png'; // Default
+       
+       if (character) {
+         switch(character) {
+           case 'ace':
+             characterSrc = 'ace.png';
+             break;
+           case 'nick':
+             characterSrc = 'nick.png';
+             break;
+           case 'pepe':
+             characterSrc = 'pepe.png';
+             break;
+           default:
+             characterSrc = 'ace.png';
+         }
+       }
+       
+       characterImg.src = characterSrc;
+       saveCharacterImg.src = characterSrc;
+     });
 
          function saveCharacterSnapshot() {
-       // Create a temporary container for the Instagram story format
-       const storyContainer = document.createElement('div');
-       storyContainer.style.position = 'fixed';
-       storyContainer.style.top = '-9999px';
-       storyContainer.style.left = '-9999px';
-       storyContainer.style.width = '1080px';
-       storyContainer.style.height = '1920px';
-       storyContainer.style.overflow = 'hidden';
+       const saveArea = document.getElementById("save-area");
        
-       // Add background image (room-2 for boys, room-1 for girls)
-       const bgImg = document.createElement('img');
-       bgImg.src = 'room-2.png'; // This is the boys room
-       bgImg.style.position = 'absolute';
-       bgImg.style.top = '0';
-       bgImg.style.left = '0';
-       bgImg.style.width = '100%';
-       bgImg.style.height = '100%';
-       bgImg.style.objectFit = 'cover';
-       storyContainer.appendChild(bgImg);
-       
-       // Add semi-transparent overlay for better text readability
-       const overlay = document.createElement('div');
-       overlay.style.position = 'absolute';
-       overlay.style.top = '0';
-       overlay.style.left = '0';
-       overlay.style.width = '100%';
-       overlay.style.height = '100%';
-       overlay.style.background = 'rgba(0, 0, 0, 0.3)';
-       storyContainer.appendChild(overlay);
-       
-       // Add logo to the top
-       const logo = document.createElement('img');
-       logo.src = 'logo.png';
-       logo.style.position = 'absolute';
-       logo.style.top = '80px';
-       logo.style.left = '50%';
-       logo.style.transform = 'translateX(-50%)';
-       logo.style.width = '350px';
-       logo.style.zIndex = '10';
-       storyContainer.appendChild(logo);
-       
-       // Create character container - positioned in center
-       const charContainer = document.createElement('div');
-       charContainer.style.position = 'absolute';
-       charContainer.style.top = '50%';
-       charContainer.style.left = '50%';
-       charContainer.style.transform = 'translate(-50%, -50%)';
-       charContainer.style.width = '800px';
-       charContainer.style.height = '1200px';
-       charContainer.style.zIndex = '5';
-       
-       // Add character image with proper scaling
-       const characterImg = document.getElementById('character');
-       const charClone = characterImg.cloneNode(true);
-       charClone.style.position = 'absolute';
-       charClone.style.top = '50%';
-       charClone.style.left = '50%';
-       charClone.style.transform = 'translate(-50%, -50%)';
-       charClone.style.width = '600px';
-       charClone.style.height = 'auto';
-       charClone.style.maxHeight = '100%';
-       charClone.style.objectFit = 'contain';
-       charContainer.appendChild(charClone);
-       
-       // Add all outfit overlays with matching positioning
-       const outfitOverlays = document.querySelectorAll('.outfit-overlay');
-       outfitOverlays.forEach(overlay => {
-         const overlayClone = overlay.cloneNode(true);
-         overlayClone.style.position = 'absolute';
-         overlayClone.style.top = '50%';
-         overlayClone.style.left = '50%';
-         overlayClone.style.transform = 'translate(-50%, -50%)';
-         overlayClone.style.width = '600px';
-         overlayClone.style.height = 'auto';
-         overlayClone.style.maxHeight = '100%';
-         overlayClone.style.objectFit = 'contain';
-         charContainer.appendChild(overlayClone);
-       });
-       
-       storyContainer.appendChild(charContainer);
-       
-       // Add watermark text at bottom
-       const watermark = document.createElement('div');
-       watermark.textContent = 'FirepitFashion.com';
-       watermark.style.position = 'absolute';
-       watermark.style.bottom = '100px';
-       watermark.style.left = '50%';
-       watermark.style.transform = 'translateX(-50%)';
-       watermark.style.color = 'white';
-       watermark.style.fontSize = '36px';
-       watermark.style.fontFamily = 'NeuePixelSans, sans-serif';
-       watermark.style.textShadow = '3px 3px 6px rgba(0,0,0,0.8)';
-       watermark.style.zIndex = '10';
-       storyContainer.appendChild(watermark);
-       
-       // Temporarily add to document
-       document.body.appendChild(storyContainer);
-       
-       // Capture the story container
-       html2canvas(storyContainer, {
-         useCORS: true,
+       html2canvas(saveArea, {
          backgroundColor: null,
-         width: 1080,
-         height: 1920,
-         scale: 1
+         useCORS: true,
+         scale: 1 // keeps 1:1 scale (no weird zooming)
        }).then(canvas => {
          const link = document.createElement('a');
          link.download = 'firepit-fashion-story.png';
          link.href = canvas.toDataURL('image/png');
          link.click();
-         
-         // Remove temporary container
-         document.body.removeChild(storyContainer);
        }).catch(error => {
          console.error('Error saving outfit:', error);
          alert('Error saving outfit. Please try again.');
-         // Remove temporary container on error
-         if (document.body.contains(storyContainer)) {
-           document.body.removeChild(storyContainer);
-         }
        });
      }
   </script>
-  <div class="wardrobe-scene">
-    <img src="room-2.png" alt="Room Background" class="background">
+     <!-- Hidden save area for Instagram story format -->
+   <div id="save-area" style="position: fixed; top: -9999px; left: -9999px; width: 1080px; height: 1920px; overflow: hidden;">
+     <img src="room-2.png" alt="Room Background" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;">
+     <img src="logo.png" alt="Logo" style="position: absolute; top: 100px; left: 50%; transform: translateX(-50%); width: 400px;">
+     <div id="save-character-container" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 800px; height: 1200px;">
+       <img id="save-character" src="ace.png" alt="Character" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: auto; max-height: 100%; object-fit: contain;">
+       <div id="save-outfits" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 100%;"></div>
+     </div>
+   </div>
+
+   <div class="wardrobe-scene">
+     <img src="room-2.png" alt="Room Background" class="background">
     <!-- Row 1 (Top shelf – hoodies, shirts, ascot) -->
     <img src="boys-wardrobe/pink-hoodie-asset.png" alt="Pink Hoodie" class="wardrobe-item" style="left: 45%; top: 15%; width: 11.55%;" onclick="addOutfit('pink-hoodie')">
     <img src="boys-wardrobe/green-shirt.png" alt="Green Shirt" class="wardrobe-item" style="left: 55%; top: 8%; width: 11.55%;" onclick="addOutfit('green-shirt')">
