@@ -230,15 +230,54 @@
          console.log('Character source:', currentCharacterBase);
          const character = await loadImage(currentCharacterBase);
          
-         // Make character fill ~80% width of canvas (much bigger!)
-         const charWidth = canvas.width * 0.8;
-         const charHeight = (character.height / character.width) * charWidth;
+         // Crop out transparent padding from character image
+         // Find the actual character bounds by scanning for non-transparent pixels
+         const tempCanvas = document.createElement('canvas');
+         const tempCtx = tempCanvas.getContext('2d');
+         tempCanvas.width = character.width;
+         tempCanvas.height = character.height;
+         tempCtx.drawImage(character, 0, 0);
+         
+         const imageData = tempCtx.getImageData(0, 0, character.width, character.height);
+         const data = imageData.data;
+         
+         let minX = character.width, minY = character.height, maxX = 0, maxY = 0;
+         
+         // Scan for non-transparent pixels
+         for (let y = 0; y < character.height; y++) {
+           for (let x = 0; x < character.width; x++) {
+             const index = (y * character.width + x) * 4;
+             const alpha = data[index + 3];
+             if (alpha > 10) { // Non-transparent pixel
+               minX = Math.min(minX, x);
+               minY = Math.min(minY, y);
+               maxX = Math.max(maxX, x);
+               maxY = Math.max(maxY, y);
+             }
+           }
+         }
+         
+         // Calculate cropped dimensions
+         const charCropWidth = maxX - minX + 1;
+         const charCropHeight = maxY - minY + 1;
+         
+         console.log('Character bounds:', minX, minY, maxX, maxY);
+         console.log('Cropped size:', charCropWidth, 'x', charCropHeight);
+         
+         // Make character fill 80% of canvas height
+         const charHeight = canvas.height * 0.8;
+         const charWidth = (charCropWidth / charCropHeight) * charHeight;
          
          // Center horizontally + position vertically in the middle
          const charX = (canvas.width - charWidth) / 2;
          const charY = (canvas.height - charHeight) / 2;
          
-         ctx.drawImage(character, charX, charY, charWidth, charHeight);
+         // Draw the cropped character (without transparent padding)
+         ctx.drawImage(
+           character,
+           minX, minY, charCropWidth, charCropHeight, // source crop
+           charX, charY, charWidth, charHeight // destination
+         );
          console.log('Character drawn at:', charX, charY, 'size:', charWidth, 'x', charHeight);
          console.log('Canvas dimensions:', canvas.width, 'x', canvas.height);
          console.log('Character should be centered at:', (canvas.width - charWidth) / 2, (canvas.height - charHeight) / 2);
@@ -250,8 +289,43 @@
          for (const item of equippedItems) {
            console.log('Loading outfit:', item.src);
            const clothing = await loadImage(item.src);
-           ctx.drawImage(clothing, charX, charY, charWidth, charHeight);
-           console.log('Outfit drawn');
+           
+           // Crop outfit the same way as character
+           const outfitTempCanvas = document.createElement('canvas');
+           const outfitTempCtx = outfitTempCanvas.getContext('2d');
+           outfitTempCanvas.width = clothing.width;
+           outfitTempCanvas.height = clothing.height;
+           outfitTempCtx.drawImage(clothing, 0, 0);
+           
+           const outfitImageData = outfitTempCtx.getImageData(0, 0, clothing.width, clothing.height);
+           const outfitData = outfitImageData.data;
+           
+           let outfitMinX = clothing.width, outfitMinY = clothing.height, outfitMaxX = 0, outfitMaxY = 0;
+           
+           // Scan for non-transparent pixels
+           for (let y = 0; y < clothing.height; y++) {
+             for (let x = 0; x < clothing.width; x++) {
+               const index = (y * clothing.width + x) * 4;
+               const alpha = outfitData[index + 3];
+               if (alpha > 10) { // Non-transparent pixel
+                 outfitMinX = Math.min(outfitMinX, x);
+                 outfitMinY = Math.min(outfitMinY, y);
+                 outfitMaxX = Math.max(outfitMaxX, x);
+                 outfitMaxY = Math.max(outfitMaxY, y);
+               }
+             }
+           }
+           
+           const outfitCropWidth = outfitMaxX - outfitMinX + 1;
+           const outfitCropHeight = outfitMaxY - outfitMinY + 1;
+           
+           // Draw the cropped outfit at same position as character
+           ctx.drawImage(
+             clothing,
+             outfitMinX, outfitMinY, outfitCropWidth, outfitCropHeight, // source crop
+             charX, charY, charWidth, charHeight // destination
+           );
+           console.log('Outfit drawn (cropped)');
          }
 
          console.log('Creating download link...');
