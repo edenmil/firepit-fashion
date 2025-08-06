@@ -166,108 +166,65 @@
        characterImg.src = characterSrc;
      });
 
-         function saveCharacterSnapshot() {
-       const canvas = document.getElementById('saveCanvas');
-       const ctx = canvas.getContext('2d');
-       
-       // Clear canvas
-       ctx.clearRect(0, 0, canvas.width, canvas.height);
-       
-       // Load and draw all images in sequence
-       const images = [];
-       let imagesLoaded = 0;
-       const totalImages = 3; // background, logo, character + outfits
-       
-       // Background image
-       const bgImg = new Image();
-       bgImg.crossOrigin = 'anonymous';
-       bgImg.onload = function() {
-         images.push({ img: bgImg, type: 'background' });
-         imagesLoaded++;
-         if (imagesLoaded === totalImages) drawCanvas();
-       };
-       bgImg.src = 'room-2.png';
-       
-       // Logo image
-       const logoImg = new Image();
-       logoImg.crossOrigin = 'anonymous';
-       logoImg.onload = function() {
-         images.push({ img: logoImg, type: 'logo' });
-         imagesLoaded++;
-         if (imagesLoaded === totalImages) drawCanvas();
-       };
-       logoImg.src = 'logo.png';
-       
-       // Character image
-       const characterImg = new Image();
-       characterImg.crossOrigin = 'anonymous';
-       characterImg.onload = function() {
-         images.push({ img: characterImg, type: 'character' });
-         imagesLoaded++;
-         if (imagesLoaded === totalImages) drawCanvas();
-       };
-       characterImg.src = document.getElementById('character').src;
-       
-       function drawCanvas() {
-         // Draw background (cover the entire canvas)
-         const bgImage = images.find(img => img.type === 'background').img;
-         ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
-         
-         // Draw logo at top center
-         const logoImage = images.find(img => img.type === 'logo').img;
-         const logoWidth = 400;
-         const logoHeight = (logoImage.height / logoImage.width) * logoWidth;
-         const logoX = (canvas.width - logoWidth) / 2;
-         const logoY = 100;
-         ctx.drawImage(logoImage, logoX, logoY, logoWidth, logoHeight);
-         
-         // Draw character centered
-         const charImage = images.find(img => img.type === 'character').img;
-         const charWidth = 600;
-         const charHeight = (charImage.height / charImage.width) * charWidth;
-         const charX = (canvas.width - charWidth) / 2;
-         const charY = (canvas.height - charHeight) / 2;
-         ctx.drawImage(charImage, charX, charY, charWidth, charHeight);
-         
-         // Draw outfits on top of character
-         const outfits = document.querySelectorAll('.outfit-overlay');
-         let outfitsToLoad = outfits.length;
-         
-         if (outfitsToLoad === 0) {
-           // No outfits, save immediately
-           saveCanvasImage();
-         } else {
-           outfits.forEach(outfit => {
-             const outfitImg = new Image();
-             outfitImg.crossOrigin = 'anonymous';
-             outfitImg.onload = function() {
-               // Draw outfit at same position as character
-               const outfitWidth = 600;
-               const outfitHeight = (outfitImg.height / outfitImg.width) * outfitWidth;
-               const outfitX = (canvas.width - outfitWidth) / 2;
-               const outfitY = (canvas.height - outfitHeight) / 2;
-               ctx.drawImage(outfitImg, outfitX, outfitY, outfitWidth, outfitHeight);
-               
-               outfitsToLoad--;
-               if (outfitsToLoad === 0) {
-                 saveCanvasImage();
-               }
-             };
-             outfitImg.src = outfit.src;
+         async function saveCharacterSnapshot() {
+       try {
+         // 1. Create fixed-size canvas (1080x1920 for story format)
+         const canvas = document.createElement('canvas');
+         canvas.width = 1080;
+         canvas.height = 1920;
+         const ctx = canvas.getContext('2d');
+
+         // 2. Helper to load an image
+         function loadImage(src) {
+           return new Promise((resolve, reject) => {
+             const img = new Image();
+             img.crossOrigin = "anonymous";
+             img.onload = () => resolve(img);
+             img.onerror = () => reject(new Error(`Failed to load image: ${src}`));
+             img.src = src;
            });
          }
-       }
-       
-       function saveCanvasImage() {
+
+         // 3. Load and draw background (fill full canvas)
+         const bg = await loadImage('room-2.png');
+         ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+
+         // 4. Draw logo at top center (approx 400px wide)
+         const logo = await loadImage('logo.png');
+         const logoWidth = 400;
+         const logoHeight = (logo.height / logo.width) * logoWidth;
+         const logoX = (canvas.width - logoWidth) / 2;
+         ctx.drawImage(logo, logoX, 50, logoWidth, logoHeight);
+
+         // 5. Draw character base (centered horizontally)
+         const currentCharacterBase = document.getElementById('character').src;
+         const character = await loadImage(currentCharacterBase);
+         const charWidth = 600;
+         const charHeight = (character.height / character.width) * charWidth;
+         const charX = (canvas.width - charWidth) / 2;
+         const charY = (canvas.height - charHeight) / 2; // center vertically
+         ctx.drawImage(character, charX, charY, charWidth, charHeight);
+
+         // 6. Draw equipped clothes (loop through outfit layers)
+         const equippedItems = document.querySelectorAll('.outfit-overlay');
+         for (const item of equippedItems) {
+           const clothing = await loadImage(item.src);
+           ctx.drawImage(clothing, charX, charY, charWidth, charHeight);
+         }
+
+         // 7. Download the final image
          const link = document.createElement('a');
          link.download = 'firepit-fashion-story.png';
          link.href = canvas.toDataURL('image/png');
          link.click();
+         
+       } catch (error) {
+         console.error('Error saving image:', error);
+         alert('Error saving image. Please try again.');
        }
      }
   </script>
-     <!-- Hidden canvas for saving -->
-   <canvas id="saveCanvas" width="1080" height="1920" style="position: fixed; top: -9999px; left: -9999px; display: none;"></canvas>
+  
 
    <div class="wardrobe-scene">
      <img src="room-2.png" alt="Room Background" class="background">
