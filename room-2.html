@@ -204,14 +204,7 @@
          ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
          console.log('Background drawn');
 
-         console.log('Loading logo...');
-         // 4. Draw logo at top center
-         const logo = await loadImage('logo.png');
-         const logoWidth = 400;
-         const logoHeight = (logo.height / logo.width) * logoWidth;
-         const logoX = (canvas.width - logoWidth) / 2;
-         ctx.drawImage(logo, logoX, 50, logoWidth, logoHeight);
-         console.log('Logo drawn at:', logoX, 50);
+                   // Logo is now part of the ig-story.png background
 
          console.log('Loading character...');
          // 5. Draw character (scaled bigger + centered in new crop)
@@ -253,20 +246,44 @@
          const characterName = urlParams.get('character') || 'Nick';
          const capitalizedName = characterName.charAt(0).toUpperCase() + characterName.slice(1);
          
-         // Main text with glow
-         ctx.font = '32px NeuePixelSans, sans-serif';
-         ctx.textAlign = 'center';
-         ctx.textBaseline = 'middle';
-         
-         const mainText = `Here's my fit for ${capitalizedName} from Love Island! #flashgames #i-miss-the-computerlab`;
-         const textX = canvas.width / 2;
-         const textY = canvas.height - 200; // 200px from bottom
-         
-         // Create glow effect
-         ctx.shadowColor = '#ff009c';
-         ctx.shadowBlur = 20;
-         ctx.fillStyle = 'white';
-         ctx.fillText(mainText, textX, textY);
+                   // Main text with glow and word wrapping
+          ctx.font = '42px NeuePixelSans, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          
+          const mainText = `Here's my fit for ${capitalizedName} from Love Island! #flashgames #i-miss-the-computerlab`;
+          const textX = canvas.width / 2;
+          const textY = canvas.height - 180; // 180px from bottom
+          const maxWidth = canvas.width - 100; // 50px padding on each side
+          
+          // Create glow effect
+          ctx.shadowColor = '#ff009c';
+          ctx.shadowBlur = 20;
+          ctx.fillStyle = 'white';
+          
+          // Word wrapping function
+          function wrapText(context, text, x, y, maxWidth, lineHeight) {
+            const words = text.split(' ');
+            let line = '';
+            let currentY = y;
+            
+            for (let n = 0; n < words.length; n++) {
+              const testLine = line + words[n] + ' ';
+              const metrics = context.measureText(testLine);
+              const testWidth = metrics.width;
+              
+              if (testWidth > maxWidth && n > 0) {
+                context.fillText(line, x, currentY);
+                line = words[n] + ' ';
+                currentY += lineHeight;
+              } else {
+                line = testLine;
+              }
+            }
+            context.fillText(line, x, currentY);
+          }
+          
+          wrapText(ctx, mainText, textX, textY, maxWidth, 40);
          
          // Reset shadow for URL text
          ctx.shadowColor = 'transparent';
