@@ -247,13 +247,13 @@
          const capitalizedName = characterName.charAt(0).toUpperCase() + characterName.slice(1);
          
                    // Main text with glow and word wrapping
-          ctx.font = '42px NeuePixelSans, sans-serif';
+          ctx.font = '48px NeuePixelSans, sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           
           const mainText = `Here's my fit for ${capitalizedName} from Love Island! #flashgames #i-miss-the-computerlab`;
           const textX = canvas.width / 2;
-          const textY = canvas.height - 180; // 180px from bottom
+          const textY = canvas.height - 230; // 50px higher (was 180px from bottom)
           const maxWidth = canvas.width - 100; // 50px padding on each side
           
           // Create glow effect
@@ -289,11 +289,11 @@
          ctx.shadowColor = 'transparent';
          ctx.shadowBlur = 0;
          
-         // URL text at very bottom
-         ctx.font = '24px NeuePixelSans, sans-serif';
-         ctx.fillStyle = 'white';
-         const urlText = 'https://edenmil.github.io/firepit-fashion/';
-         const urlY = canvas.height - 50; // 50px from bottom
+                   // URL text at very bottom
+          ctx.font = '28px NeuePixelSans, sans-serif';
+          ctx.fillStyle = 'white';
+          const urlText = 'https://edenmil.github.io/firepit-fashion/';
+          const urlY = canvas.height - 75; // 25px higher (was 50px from bottom)
          ctx.fillText(urlText, textX, urlY);
          
          console.log('Creating download link...');
