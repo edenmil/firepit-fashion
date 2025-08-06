@@ -170,64 +170,92 @@
        storyContainer.style.left = '-9999px';
        storyContainer.style.width = '1080px';
        storyContainer.style.height = '1920px';
-       storyContainer.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
-       storyContainer.style.display = 'flex';
-       storyContainer.style.flexDirection = 'column';
-       storyContainer.style.alignItems = 'center';
-       storyContainer.style.justifyContent = 'center';
-       storyContainer.style.padding = '100px 50px';
-       storyContainer.style.boxSizing = 'border-box';
+       storyContainer.style.overflow = 'hidden';
+       
+       // Add background image (room-2 for boys, room-1 for girls)
+       const bgImg = document.createElement('img');
+       bgImg.src = 'room-2.png'; // This is the boys room
+       bgImg.style.position = 'absolute';
+       bgImg.style.top = '0';
+       bgImg.style.left = '0';
+       bgImg.style.width = '100%';
+       bgImg.style.height = '100%';
+       bgImg.style.objectFit = 'cover';
+       storyContainer.appendChild(bgImg);
+       
+       // Add semi-transparent overlay for better text readability
+       const overlay = document.createElement('div');
+       overlay.style.position = 'absolute';
+       overlay.style.top = '0';
+       overlay.style.left = '0';
+       overlay.style.width = '100%';
+       overlay.style.height = '100%';
+       overlay.style.background = 'rgba(0, 0, 0, 0.3)';
+       storyContainer.appendChild(overlay);
        
        // Add logo to the top
        const logo = document.createElement('img');
        logo.src = 'logo.png';
-       logo.style.width = '400px';
-       logo.style.marginBottom = '50px';
+       logo.style.position = 'absolute';
+       logo.style.top = '80px';
+       logo.style.left = '50%';
+       logo.style.transform = 'translateX(-50%)';
+       logo.style.width = '350px';
+       logo.style.zIndex = '10';
        storyContainer.appendChild(logo);
        
-       // Create character container
+       // Create character container - positioned in center
        const charContainer = document.createElement('div');
-       charContainer.style.position = 'relative';
-       charContainer.style.width = '600px';
-       charContainer.style.height = '900px';
-       charContainer.style.display = 'flex';
-       charContainer.style.alignItems = 'center';
-       charContainer.style.justifyContent = 'center';
+       charContainer.style.position = 'absolute';
+       charContainer.style.top = '50%';
+       charContainer.style.left = '50%';
+       charContainer.style.transform = 'translate(-50%, -50%)';
+       charContainer.style.width = '800px';
+       charContainer.style.height = '1200px';
+       charContainer.style.zIndex = '5';
        
-       // Add character image
+       // Add character image with proper scaling
        const characterImg = document.getElementById('character');
        const charClone = characterImg.cloneNode(true);
        charClone.style.position = 'absolute';
-       charClone.style.maxWidth = '100%';
-       charClone.style.maxHeight = '100%';
-       charClone.style.width = 'auto';
+       charClone.style.top = '50%';
+       charClone.style.left = '50%';
+       charClone.style.transform = 'translate(-50%, -50%)';
+       charClone.style.width = '600px';
        charClone.style.height = 'auto';
+       charClone.style.maxHeight = '100%';
        charClone.style.objectFit = 'contain';
        charContainer.appendChild(charClone);
        
-       // Add all outfit overlays
+       // Add all outfit overlays with matching positioning
        const outfitOverlays = document.querySelectorAll('.outfit-overlay');
        outfitOverlays.forEach(overlay => {
          const overlayClone = overlay.cloneNode(true);
          overlayClone.style.position = 'absolute';
-         overlayClone.style.maxWidth = '100%';
-         overlayClone.style.maxHeight = '100%';
-         overlayClone.style.width = 'auto';
+         overlayClone.style.top = '50%';
+         overlayClone.style.left = '50%';
+         overlayClone.style.transform = 'translate(-50%, -50%)';
+         overlayClone.style.width = '600px';
          overlayClone.style.height = 'auto';
+         overlayClone.style.maxHeight = '100%';
          overlayClone.style.objectFit = 'contain';
          charContainer.appendChild(overlayClone);
        });
        
        storyContainer.appendChild(charContainer);
        
-       // Add watermark text
+       // Add watermark text at bottom
        const watermark = document.createElement('div');
        watermark.textContent = 'FirepitFashion.com';
+       watermark.style.position = 'absolute';
+       watermark.style.bottom = '100px';
+       watermark.style.left = '50%';
+       watermark.style.transform = 'translateX(-50%)';
        watermark.style.color = 'white';
-       watermark.style.fontSize = '32px';
+       watermark.style.fontSize = '36px';
        watermark.style.fontFamily = 'NeuePixelSans, sans-serif';
-       watermark.style.marginTop = '50px';
-       watermark.style.textShadow = '2px 2px 4px rgba(0,0,0,0.5)';
+       watermark.style.textShadow = '3px 3px 6px rgba(0,0,0,0.8)';
+       watermark.style.zIndex = '10';
        storyContainer.appendChild(watermark);
        
        // Temporarily add to document
