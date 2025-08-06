@@ -167,7 +167,6 @@
      });
 
          async function saveCharacterSnapshot() {
-       alert('Save function called! Starting canvas creation...');
        console.log('Save function called!');
        
        try {
@@ -197,13 +196,23 @@
          }
 
          console.log('Loading background...');
-         // 3. Load and draw background (fill full canvas)
+         // 3. Load and draw CROPPED background (left side only)
          const bg = await loadImage('room-2.png');
-         ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
-         console.log('Background drawn');
+         
+         // Crop to left 50% of original background
+         const cropWidth = bg.width * 0.5;
+         const cropHeight = bg.height;
+         
+         // Draw that cropped part stretched to full canvas
+         ctx.drawImage(
+           bg,
+           0, 0, cropWidth, cropHeight, // source crop
+           0, 0, canvas.width, canvas.height // fill canvas
+         );
+         console.log('Background drawn (cropped left side)');
 
          console.log('Loading logo...');
-         // 4. Draw logo at top center (approx 400px wide)
+         // 4. Draw logo at top center
          const logo = await loadImage('logo.png');
          const logoWidth = 400;
          const logoHeight = (logo.height / logo.width) * logoWidth;
@@ -212,19 +221,24 @@
          console.log('Logo drawn at:', logoX, 50);
 
          console.log('Loading character...');
-         // 5. Draw character base (centered horizontally)
+         // 5. Draw character (scaled bigger + centered in new crop)
          const currentCharacterBase = document.getElementById('character').src;
          console.log('Character source:', currentCharacterBase);
          const character = await loadImage(currentCharacterBase);
-         const charWidth = 600;
+         
+         // Make character fill ~60% width of canvas
+         const charWidth = canvas.width * 0.6;
          const charHeight = (character.height / character.width) * charWidth;
+         
+         // Center horizontally + position vertically
          const charX = (canvas.width - charWidth) / 2;
-         const charY = (canvas.height - charHeight) / 2; // center vertically
+         const charY = (canvas.height - charHeight) / 2;
+         
          ctx.drawImage(character, charX, charY, charWidth, charHeight);
          console.log('Character drawn at:', charX, charY, 'size:', charWidth, 'x', charHeight);
 
          console.log('Loading outfits...');
-         // 6. Draw equipped clothes (loop through outfit layers)
+         // 6. Draw outfits at same position/size as character
          const equippedItems = document.querySelectorAll('.outfit-overlay');
          console.log('Found', equippedItems.length, 'outfits');
          for (const item of equippedItems) {
@@ -240,8 +254,20 @@
          link.download = 'firepit-fashion-story.png';
          link.href = canvas.toDataURL('image/png');
          console.log('Downloading image...');
+         
+         // Debug: Let's see what the canvas contains
+         console.log('Canvas data URL length:', link.href.length);
+         console.log('Canvas data URL preview:', link.href.substring(0, 100) + '...');
+         
+         // Try to trigger download
+         document.body.appendChild(link);
          link.click();
+         document.body.removeChild(link);
          console.log('Download complete!');
+         
+         // Also show a preview in the console
+         console.log('Canvas preview - check if this shows the correct image:');
+         console.log('Canvas width:', canvas.width, 'height:', canvas.height);
          
        } catch (error) {
          console.error('Error saving image:', error);
